@@ -1,0 +1,38 @@
+% Parámetros iniciales
+N = 100; % Número de agentes
+timesteps = 100; % Tiempo de simulación
+infection_prob = 0.2; % Aumenta la probabilidad de infección
+grid_size = ceil(sqrt(N)); % Tamaño de la cuadrícula para distribuir agentes
+
+% Estados: 0 = sano, 1 = infectado, 2 = recuperado
+agents = zeros(N, 1);
+agents(randi([1, N], 1)) = 1; % Un agente infectado al azar
+
+% Posiciones de los agentes en una cuadrícula
+[x, y] = meshgrid(1:grid_size, 1:grid_size);
+x = x(1:N);
+y = y(1:N);
+
+for t = 1:timesteps
+    for i = 1:N
+        if agents(i) == 1 % Si está infectado
+            % Infectar vecinos cercanos (distancia euclidiana)
+            for j = 1:N
+                if agents(j) == 0 && rand < infection_prob
+                    dist = sqrt((x(i) - x(j))^2 + (y(i) - y(j))^2);
+                    if dist < 1.5 % Distancia máxima para infección
+                        agents(j) = 1; % Infectar agente sano
+                    end
+                end
+            end
+            agents(i) = 2; % Se recupera después de cierto tiempo
+        end
+    end
+    
+    % Visualización con colores
+    scatter(x, y, 100, agents, 'filled');
+    colormap([0 1 0; 1 0 0; 0 0 1]); % Verde: sano, Rojo: infectado, Azul: recuperado
+    title(['Timestep ', num2str(t)]);
+    axis([0 grid_size+1 0 grid_size+1]) % Limitar los ejes a la cuadrícula
+    pause(0.1); % Pausa para ver la simulación
+end
